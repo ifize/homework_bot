@@ -41,7 +41,6 @@ handler.setFormatter(formatter)
 
 def send_message(bot, message):
     """Отправляет сообщения пользователю."""
-
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Бот отправил сообщение "{message}"')
@@ -51,13 +50,12 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """Делает запрос к API."""
-
     timestamp = current_timestamp or int(time.time())
     params = {"from_date": timestamp}
     homework_statuses = requests.get(ENDPOINT, headers=HEADERS, params=params)
     if homework_statuses.status_code != 200:
         error_message = (
-            f'Сбой при запросе к эндпоинту статус {homework_statuses.status_code}'
+            f'Сбой запроса к эндпоинту статус {homework_statuses.status_code}'
         )
         send_message(telegram.Bot(token=TELEGRAM_TOKEN), error_message)
         logger.error(error_message)
@@ -66,8 +64,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    """Проверяет ответ API на корректность"""
-
+    """Проверяет ответ API на корректность."""
     if type(response["homeworks"]) != list:
         error_message = "Неверный тип данных"
         logger.error(error_message)
@@ -88,7 +85,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Проверяет статус домашней работы"""
+    """Проверяет статус домашней работы."""
     homework_name = homework["homework_name"]
     homework_status = homework["status"]
     if homework_status not in HOMEWORK_STATUSES:
@@ -99,9 +96,9 @@ def parse_status(homework):
     else:
         try:
             verdict = HOMEWORK_STATUSES[homework_status]
-            return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+            return f'Изменился статус проверки "{homework_name}". {verdict}'
         except Exception:
-            error_message = "В ответе API неопределенный статус домашней работы"
+            error_message = "В ответе API неопределён статус домашней работы"
             logger.error(error_message)
             send_message(telegram.Bot(token=TELEGRAM_TOKEN), error_message)
 
@@ -117,7 +114,6 @@ def check_tokens():
 
 def main():
     """Основная логика работы бота."""
-
     check_tokens()
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
