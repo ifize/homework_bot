@@ -96,7 +96,7 @@ def parse_status(homework):
     else:
         try:
             verdict = HOMEWORK_STATUSES[homework_status]
-            return f'Изменился статус проверки "{homework_name}". {verdict}'
+            return f'Изменился статус проверки работы "{homework_name}". {verdict}'
         except Exception:
             error_message = "В ответе API неопределён статус домашней работы"
             logger.error(error_message)
