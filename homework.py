@@ -28,7 +28,11 @@ HOMEWORK_VERDICTES = {
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-handler = RotatingFileHandler(__file__ + '.log', maxBytes=50000000, backupCount=5)
+handler = RotatingFileHandler(
+    __file__ + '.log',
+    maxBytes=50000000,
+    backupCount=5
+)
 logger.addHandler(handler)
 logger.addHandler(logging.StreamHandler())
 formatter = logging.Formatter(
@@ -44,7 +48,10 @@ def send_message(bot, message):
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Бот отправил сообщение "{message}"')
     except telegram.TelegramError as error:
-        logger.error(f'Бот не отправил сообщение "{message}" из-за {error}', exc_info=True)
+        logger.error(
+            f'Бот не отправил сообщение "{message}" из-за {error}',
+            exc_info=True
+        )
 
 
 def get_api_answer(current_timestamp):
@@ -52,24 +59,31 @@ def get_api_answer(current_timestamp):
     timestamp = current_timestamp or int(time.time())
     params = {"from_date": timestamp}
     try:
-        homework_statuses = requests.get(ENDPOINT, headers=HEADERS, params=params)
+        homework_statuses = requests.get(
+            ENDPOINT,
+            headers=HEADERS,
+            params=params
+        )
         if homework_statuses.status_code != 200:
             error_message = (
-                f'Сбой запроса к эндпоинту статус {homework_statuses.status_code}'
+                f'Сбой запроса к эндпоинту. '
+                f'Cтатус {homework_statuses.status_code}'
             )
             send_message(telegram.Bot(token=TELEGRAM_TOKEN), error_message)
             logger.error(error_message)
-            raise exceptions.StatusCodeError(Exception, homework_statuses.status_code)
+            raise exceptions.StatusCodeError(
+                Exception,
+                homework_statuses.status_code)
         return homework_statuses.json()
     except requests.exceptions.Timeout:
         error_message = (
-            f'Сбой запроса к эндпоинту. Timeout.'
+            'Сбой запроса к эндпоинту. Timeout.'
         )
         logger.error(error_message)
         raise Exception(error_message)
     except requests.exceptions.TooManyRedirects:
         error_message = (
-            f'Сбой запроса к эндпоинту. Слишком много редиректов.'
+            'Сбой запроса к эндпоинту. Слишком много редиректов.'
         )
         logger.error(error_message)
         raise Exception(error_message)
@@ -127,7 +141,9 @@ def check_tokens():
     if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
         return True
     else:
-        error_message = f'Отсутствует(ют) обязательная(ые) переменная(ые) окружения: '
+        error_message = (
+            'Отсутствует(ют) обязательная(ые) переменная(ые) окружения: '
+        )
         if not PRACTICUM_TOKEN:
             error_message += 'PRACTICUM_TOKEN '
         if not TELEGRAM_TOKEN:
