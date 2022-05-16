@@ -47,9 +47,9 @@ def send_message(bot, message):
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logger.info(f'Бот отправил сообщение "{message}"')
-    except telegram.TelegramError as error:
+    except telegram.TelegramError:
         logger.error(
-            f'Бот не отправил сообщение "{message}" из-за {error}',
+            f'Бот не отправил сообщение "{message}" из-за ',
             exc_info=True
         )
 
@@ -75,24 +75,13 @@ def get_api_answer(current_timestamp):
                 Exception,
                 homework_statuses.status_code)
         return homework_statuses.json()
-    except requests.exceptions.Timeout:
-        error_message = (
-            'Сбой запроса к эндпоинту. Timeout.'
-        )
-        logger.error(error_message)
-        raise Exception(error_message)
-    except requests.exceptions.TooManyRedirects:
-        error_message = (
-            'Сбой запроса к эндпоинту. Слишком много редиректов.'
-        )
-        logger.error(error_message)
-        raise Exception(error_message)
+
     except requests.exceptions.RequestException as error:
         error_message = (
-            f'Сбой запроса к эндпоинту. {error}'
+            f'Проблемы при работе с API Практикума. {error}'
         )
         logger.error(error_message)
-        raise SystemExit(error)
+        raise Exception(error_message)
 
 
 def check_response(response):
@@ -100,7 +89,7 @@ def check_response(response):
     if not isinstance(response["homeworks"], list):
         error_message = "Неверный тип данных"
         logger.error(error_message)
-        raise Exception(error_message)
+        raise TypeError(error_message)
     else:
         try:
             response["homeworks"]
@@ -166,8 +155,9 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homework = check_response(response)
-            if homework and (message != parse_status(homework[0])):
-                message = parse_status(homework[0])
+            new_message = parse_status(homework[0])
+            if homework and (message != new_message):
+                message = new_message
                 send_message(bot, message)
             current_timestamp = response.get("current_date")
 
